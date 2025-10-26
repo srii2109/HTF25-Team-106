@@ -1,0 +1,1 @@
+print("Hello, this is team 106")

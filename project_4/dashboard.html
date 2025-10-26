@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamFlow Pro | Intelligent Seating Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .header-content p {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            max-width: 500px;
+        }
+
+        /* User Info & Logout */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .logout-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-panel {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel-icon i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .panel-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .file-upload {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 32px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        .file-upload i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .file-upload input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .capacity-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .capacity-option {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .capacity-option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .capacity-icon {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .room-config {
+            margin-bottom: 16px;
+        }
+
+        .room-input-group {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .room-label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .add-room-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .remove-room-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .remove-room-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .student-preview {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .student-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .student-preview-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 36px 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+            transition: all 0.2s ease;
+        }
+
+        .student-item.highlighted {
+            background: #fef3c7;
+            border-left-color: var(--accent);
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-location {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .location-details {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .location-badge {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .location-badge.room {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .location-badge.bench {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .location-badge.seat {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .info-text {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .upload-status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .upload-status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .upload-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .upload-status.processing {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .seating-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            color: var(--dark);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card p {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .seating-container {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .room-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .room-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .room-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .room-capacity {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .bench-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bench-compact {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .bench-compact:hover {
+            border-color: var(--primary);
+        }
+
+        .bench-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .student-compact {
+            font-size: 0.75rem;
+            color: var(--dark);
+            margin-bottom: 2px;
+        }
+
+        .student-roll-compact {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .export-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-export {
+            padding: 12px 24px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-export:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .status-message i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        /* Logout Modal */
+        .logout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .logout-modal-icon {
+            font-size: 3rem;
+            color: var(--error);
+            margin-bottom: 16px;
+        }
+
+        .logout-modal h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        .logout-modal p {
+            color: var(--secondary);
+            margin-bottom: 24px;
+        }
+
+        .logout-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #f1f5f9;
+            color: var(--dark);
+        }
+
+        .modal-btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .modal-btn-confirm {
+            background: var(--error);
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-content h1 {
+                font-size: 2rem;
+            }
+            .user-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .user-info {
+                text-align: center;
+            }
+            .main-grid {
+                gap: 20px;
+            }
+            .control-panel, .seating-section {
+                padding: 24px;
+            }
+            .capacity-selector {
+                grid-template-columns: 1fr;
+            }
+            .room-input-group {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .export-controls {
+                flex-direction: column;
+            }
+            .student-preview-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+            .student-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .student-location {
+                text-align: left;
+                margin-top: 8px;
+            }
+            .logout-modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal" id="logoutModal">
+        <div class="logout-modal-content">
+            <div class="logout-modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout from ExamFlow Pro?</p>
+            <div class="logout-modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeLogoutModal()">
+                    Cancel
+                </button>
+                <button class="modal-btn modal-btn-confirm" onclick="performLogout()">
+                    Yes, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-chair"></i>
+                </div>
+                <div class="header-content">
+                    <h1>ExamFlow Pro</h1>
+                    <p>Scalable Examination Seating Management System</p>
+                </div>
+            </div>
+
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar">
+                    A
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Administrator</div>
+                    <div class="user-role">Exam Coordinator</div>
+                </div>
+                <button class="logout-btn" onclick="showLogoutModal()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="control-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h2>Configuration</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-csv"></i>
+                        Upload Student Data
+                    </label>
+                    <div class="file-upload" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Upload CSV File</h3>
+                        <p>Drag & drop or click to upload</p>
+                        <div class="file-name" id="fileName">No file selected</div>
+                        <input type="file" id="fileInput" accept=".csv">
+                    </div>
+                    <div id="uploadStatus"></div>
+                    <span class="info-text">Required columns: RollNo, Name, Course, Subject</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-door-open"></i>
+                        Room Configuration
+                    </label>
+                    <div class="room-config" id="roomConfig">
+                        <div class="room-input-group">
+                            <span class="room-label">Room 1:</span>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" class="form-control room-benches" value="25" min="1" max="100" placeholder="Benches">
+                                <button class="remove-room-btn" onclick="removeRoom(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="room-input-group">
+                            <span class="room-label">Room 2:</span>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" class="form-control room-benches" value="25" min="1" max="100" placeholder="Benches">
+                                <button class="remove-room-btn" onclick="removeRoom(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-room-btn" onclick="addRoom()">
+                        <i class="fas fa-plus"></i>
+                        Add Another Room
+                    </button>
+                    <span class="info-text">Define benches for each examination room. Click the red × to remove rooms.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-people-arrows"></i>
+                        Seating Arrangement
+                    </label>
+                    <div class="capacity-selector">
+                        <div class="capacity-option selected" data-capacity="1">
+                            <div class="capacity-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="capacity-text">Single</div>
+                        </div>
+                        <div class="capacity-option" data-capacity="2">
+                            <div class="capacity-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="capacity-text">Dual</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="studentPreview" class="student-preview" style="display: none;">
+                    <div class="student-preview-header">
+                        <div class="student-preview-title">
+                            <i class="fas fa-users"></i>
+                            Student Roster (<span id="studentCount">0</span>)
+                        </div>
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="studentSearch" placeholder="Search students...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                    <div id="studentList"></div>
+                </div>
+
+                <button class="btn btn-primary" onclick="generateSeating()">
+                    <i class="fas fa-project-diagram"></i>
+                    Generate Seating Plan
+                </button>
+            </div>
+
+            <div class="seating-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-network-wired"></i>
+                        Seating Arrangement
+                    </h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 id="statStudents">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chair"></i>
+                        <h3 id="statSeats">0</h3>
+                        <p>Total Seats</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-door-open"></i>
+                        <h3 id="statRooms">0</h3>
+                        <p>Total Rooms</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-percentage"></i>
+                        <h3 id="statUsage">0%</h3>
+                        <p>Capacity Used</p>
+                    </div>
+                </div>
+
+                <div class="seating-container">
+                    <div class="room-layout" id="roomLayout">
+                        <div class="status-message">
+                            <i class="fas fa-upload"></i>
+                            <h3>Upload Student Data to Begin</h3>
+                            <p>Use the control panel on the left to upload your CSV file</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-controls">
+                    <button class="btn-export btn-success" onclick="exportToCSV()">
+                        <i class="fas fa-file-csv"></i>
+                        Download CSV
+                    </button>
+                    <button class="btn-export btn-warning" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i>
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentCapacity = 1;
+    let studentsData = [];
+    let seatingArrangement = [];
+    let roomCounter = 2;
+    let searchTerm = '';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const studentSearch = document.getElementById('studentSearch');
+
+        // Load user data from localStorage
+        loadUserData();
+
+        // Fix capacity selector
+        document.querySelectorAll('.capacity-option').forEach(option => {
+            option.addEventListener('click', function() {
+                selectCapacity(parseInt(this.dataset.capacity));
+            });
+        });
+
+        // Search functionality
+        studentSearch.addEventListener('input', function(e) {
+            searchTerm = e.target.value.toLowerCase().trim();
+            updateStudentPreview();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                handleFileUpload(file);
+            }
+        });
+
+        // Drag and drop support
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        fileUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = 'var(--primary)';
+            fileUploadArea.style.background = '#f1f5f9';
+        });
+
+        fileUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = '#cbd5e1';
+            fileUploadArea.style.background = '#f8fafc';
+        });
+
+        fileUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileUploadArea.style.borderColor = '#cbd5e1';
+            fileUploadArea.style.background = '#f8fafc';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = file.name;
+                handleFileUpload(file);
+            } else {
+                showUploadStatus('Please upload a CSV file', 'error');
+            }
+        });
+    });
+
+    // User Data Management
+    function loadUserData() {
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+            try {
+                const user = JSON.parse(loggedInUser);
+                document.getElementById('userName').textContent = user.fullName || 'Administrator';
+                document.getElementById('userAvatar').textContent = (user.fullName || 'A').charAt(0).toUpperCase();
+            } catch (e) {
+                console.error('Error loading user data:', e);
+            }
+        }
+    }
+
+    // Logout Functionality
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    function performLogout() {
+        // Clear user session data
+        localStorage.removeItem('loggedInUser');
+        localStorage.removeItem('rememberMe');
+        
+        // Redirect to login page
+        window.location.href = 'login.html'; // Change this to your login page URL
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('logoutModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeLogoutModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLogoutModal();
+        }
+    });
+
+    // Rest of your existing functions remain the same...
+    function addRoom() {
+        roomCounter++;
+        const roomConfig = document.getElementById('roomConfig');
+        const roomInput = document.createElement('div');
+        roomInput.className = 'room-input-group';
+        roomInput.innerHTML = `
+            <span class="room-label">Room ${roomCounter}:</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="number" class="form-control room-benches" value="25" min="1" max="100" placeholder="Benches">
+                <button class="remove-room-btn" onclick="removeRoom(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        roomConfig.appendChild(roomInput);
+    }
+
+    function removeRoom(button) {
+        if (document.querySelectorAll('.room-input-group').length > 1) {
+            button.closest('.room-input-group').remove();
+            // Update room labels
+            const roomGroups = document.querySelectorAll('.room-input-group');
+            roomGroups.forEach((group, index) => {
+                group.querySelector('.room-label').textContent = `Room ${index + 1}:`;
+            });
+            roomCounter = roomGroups.length;
+        } else {
+            alert('At least one room is required');
+        }
+    }
+
+    function selectCapacity(capacity) {
+        currentCapacity = capacity;
+        document.querySelectorAll('.capacity-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        document.querySelector(`[data-capacity="${capacity}"]`).classList.add('selected');
+    }
+
+    function handleFileUpload(file) {
+        // Show processing status for large files
+        if (file.size > 1024 * 1024) { // > 1MB
+            showUploadStatus('Processing large file...', 'processing');
+            const progressBar = createProgressBar();
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const csvData = e.target.result;
+                parseCSVData(csvData);
+                showUploadStatus('CSV file uploaded successfully!', 'success');
+                
+            } catch (error) {
+                showUploadStatus('Error parsing CSV file: ' + error.message, 'error');
+            }
+        };
+        
+        reader.onerror = function() {
+            showUploadStatus('Error reading file', 'error');
+        };
+        
+        reader.readAsText(file);
+    }
+
+    function createProgressBar() {
+        const uploadStatus = document.getElementById('uploadStatus');
+        const progressHTML = `
+            <div class="upload-status processing">
+                Processing large file...
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        `;
+        uploadStatus.innerHTML = progressHTML;
+        return document.getElementById('progressFill');
+    }
+
+    function showUploadStatus(message, type) {
+        const uploadStatus = document.getElementById('uploadStatus');
+        uploadStatus.innerHTML = `<div class="upload-status ${type}">${message}</div>`;
+        if (type !== 'processing') {
+            setTimeout(() => { uploadStatus.innerHTML = ''; }, 5000);
+        }
+    }
+
+    function parseCSVData(csvData) {
+        const lines = csvData.split('\n').filter(line => line.trim());
+        if (lines.length < 2) throw new Error('CSV file is empty');
+
+        studentsData = [];
+        const headers = lines[0].split(',').map(header => header.trim().toLowerCase());
+
+        const requiredColumns = ['rollno', 'name', 'course', 'subject'];
+        const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+        if (missingColumns.length > 0) {
+            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+        }
+
+        // Process in chunks for very large files
+        const chunkSize = 1000;
+        const totalLines = lines.length - 1;
+        
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            // Handle quoted CSV fields and commas within fields
+            const columns = parseCSVLine(line);
+            
+            if (columns.length >= 4) {
+                studentsData.push({
+                    rollNo: columns[0] || '',
+                    name: columns[1] || '',
+                    course: columns[2] || '',
+                    subject: columns[3] || ''
+                });
+            }
+
+            // Update progress for very large files
+            if (totalLines > 5000 && i % 1000 === 0) {
+                const progress = Math.round((i / totalLines) * 100);
+                updateProgressBar(progress);
+            }
+        }
+
+        if (studentsData.length === 0) throw new Error('No valid student data found');
+        updateStudentPreview();
+    }
+
+    function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        
+        result.push(current.trim());
+        return result;
+    }
+
+    function updateProgressBar(percent) {
+        let progressFill = document.getElementById('progressFill');
+        if (progressFill) {
+            progressFill.style.width = percent + '%';
+        }
+    }
+
+    function updateStudentPreview() {
+        const preview = document.getElementById('studentPreview');
+        const studentList = document.getElementById('studentList');
+        const studentCount = document.getElementById('studentCount');
+
+        if (studentsData.length > 0) {
+            preview.style.display = 'block';
+            
+            // Filter students based on search term
+            let filteredStudents = studentsData;
+            if (searchTerm) {
+                filteredStudents = studentsData.filter(student => 
+                    student.rollNo.toLowerCase().includes(searchTerm) ||
+                    student.name.toLowerCase().includes(searchTerm) ||
+                    student.course.toLowerCase().includes(searchTerm) ||
+                    student.subject.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            studentCount.textContent = `${filteredStudents.length} of ${studentsData.length.toLocaleString()}`;
+            
+            let html = '';
+            const previewCount = Math.min(10, filteredStudents.length);
+            filteredStudents.slice(0, previewCount).forEach(student => {
+                const isHighlighted = searchTerm && (
+                    student.rollNo.toLowerCase().includes(searchTerm) ||
+                    student.name.toLowerCase().includes(searchTerm) ||
+                    student.course.toLowerCase().includes(searchTerm) ||
+                    student.subject.toLowerCase().includes(searchTerm)
+                );
+
+                // Find seating arrangement for this student
+                const studentSeating = seatingArrangement.find(s => s.rollNo === student.rollNo);
+                
+                html += `<div class="student-item ${isHighlighted ? 'highlighted' : ''}">
+                    <div class="student-info">
+                        <div><strong>${highlightText(student.rollNo, searchTerm)}</strong></div>
+                        <div>${highlightText(student.name, searchTerm)}</div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">
+                            ${highlightText(student.course, searchTerm)} | ${highlightText(student.subject, searchTerm)}
+                        </div>
+                    </div>
+                    <div class="student-location">
+                        ${studentSeating ? 
+                            `<div>Assigned Location:</div>
+                             <div class="location-details">
+                                 <span class="location-badge room">Room ${studentSeating.roomNo}</span>
+                                 <span class="location-badge bench">Bench ${studentSeating.benchNo}</span>
+                                 <span class="location-badge seat">Seat ${studentSeating.seatNo}</span>
+                             </div>` : 
+                            '<div style="color: #ef4444; font-size: 0.7rem;">Not Assigned</div>'
+                        }
+                    </div>
+                </div>`;
+            });
+
+            if (filteredStudents.length > 10) {
+                html += `<div style="text-align: center; color: #64748b; font-size: 0.75rem; padding: 8px;">
+                    Showing 10 of ${filteredStudents.length} matching students
+                </div>`;
+            } else if (filteredStudents.length === 0 && searchTerm) {
+                html += `<div style="text-align: center; color: #64748b; font-size: 0.8rem; padding: 20px;">
+                    <i class="fas fa-search" style="font-size: 1.5rem; margin-bottom: 8px;"></i><br>
+                    No students found matching "${searchTerm}"
+                </div>`;
+            }
+
+            studentList.innerHTML = html;
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    function highlightText(text, searchTerm) {
+        if (!searchTerm || !text) return text;
+        
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<mark style="background: #fef3c7; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+    }
+
+    function getRoomConfiguration() {
+        const roomInputs = document.querySelectorAll('.room-benches');
+        const rooms = [];
+        roomInputs.forEach((input, index) => {
+            const benches = parseInt(input.value) || 0;
+            if (benches > 0) {
+                rooms.push({
+                    roomNumber: index + 1,
+                    benches: benches
+                });
+            }
+        });
+        return rooms;
+    }
+
+    function updateStatistics(totalRooms, totalSeats) {
+        const totalStudents = studentsData.length;
+        
+        document.getElementById('statStudents').textContent = totalStudents.toLocaleString();
+        document.getElementById('statSeats').textContent = totalSeats.toLocaleString();
+        document.getElementById('statRooms').textContent = totalRooms;
+        document.getElementById('statUsage').textContent = Math.round((totalStudents / totalSeats) * 100) + '%';
+    }
+
+    function generateSeating() {
+        if (studentsData.length === 0) {
+            alert('⚠️ Please upload a CSV file first!');
+            return;
+        }
+
+        const rooms = getRoomConfiguration();
+        if (rooms.length === 0) {
+            alert('⚠️ Please configure at least one room with benches!');
+            return;
+        }
+
+        const seatsPerBench = currentCapacity;
+        
+        // Calculate total seats
+        let totalSeats = 0;
+        rooms.forEach(room => {
+            totalSeats += room.benches * seatsPerBench;
+        });
+
+        if (studentsData.length > totalSeats) {
+            alert(`⚠️ Not enough seats for all students! 
+You have ${studentsData.length} students but only ${totalSeats} seats.
+Add more benches or rooms.`);
+            return;
+        }
+
+        // Show processing for large datasets
+        if (studentsData.length > 1000) {
+            showUploadStatus('Generating seating arrangement for large dataset...', 'processing');
+        }
+
+        // Generate seating arrangement
+        seatingArrangement = [];
+        
+        // Use Fisher-Yates shuffle for better randomization
+        const shuffledStudents = [...studentsData];
+        for (let i = shuffledStudents.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledStudents[i], shuffledStudents[j]] = [shuffledStudents[j], shuffledStudents[i]];
+        }
+        
+        let studentIndex = 0;
+        let benchCounter = 1;
+
+        rooms.forEach(room => {
+            for (let benchInRoom = 1; benchInRoom <= room.benches; benchInRoom++) {
+                for (let seat = 1; seat <= seatsPerBench; seat++) {
+                    if (studentIndex < shuffledStudents.length) {
+                        const student = shuffledStudents[studentIndex];
+                        seatingArrangement.push({
+                            ...student,
+                            roomNo: room.roomNumber,
+                            benchNo: benchCounter,
+                            seatNo: seat
+                        });
+                        studentIndex++;
+                    }
+                }
+                benchCounter++;
+            }
+        });
+
+        updateStatistics(rooms.length, totalSeats);
+        generateRoomLayout();
+        updateStudentPreview(); // Update student preview to show room/seat info
+        showUploadStatus(`Seating arrangement generated successfully! ${rooms.length} room(s) used.`, 'success');
+    }
+
+    function generateRoomLayout() {
+        const roomLayout = document.getElementById('roomLayout');
+        
+        if (!roomLayout) {
+            console.error('roomLayout element not found!');
+            return;
+        }
+
+        // Clear previous content
+        roomLayout.innerHTML = '';
+
+        if (seatingArrangement.length === 0) {
+            roomLayout.innerHTML = `
+                <div class="status-message">
+                    <i class="fas fa-project-diagram"></i>
+                    <h3>Generate Seating Plan</h3>
+                    <p>Click "Generate Seating Plan" to create the arrangement</p>
+                </div>`;
+            return;
+        }
+
+        const rooms = getRoomConfiguration();
+        if (rooms.length === 0) {
+            roomLayout.innerHTML = `
+                <div class="status-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>No Rooms Configured</h3>
+                    <p>Please configure rooms in the control panel</p>
+                </div>`;
+            return;
+        }
+
+        let html = '';
+
+        rooms.forEach(room => {
+            // Get all students in this room
+            const roomStudents = seatingArrangement.filter(student => student.roomNo === room.roomNumber);
+            
+            html += `<div class="room-section">
+                <div class="room-header">
+                    <div class="room-title">Room ${room.roomNumber}</div>
+                    <div class="room-capacity">${room.benches} benches, ${roomStudents.length} students</div>
+                </div>`;
+            
+            // Create benches in rows of 5
+            for (let row = 0; row < Math.ceil(room.benches / 5); row++) {
+                html += `<div class="bench-row">`;
+                
+                for (let col = 0; col < 5; col++) {
+                    const benchNum = row * 5 + col + 1;
+                    if (benchNum > room.benches) break;
+                    
+                    // Get students for this specific bench
+                    const benchStudents = seatingArrangement.filter(student => 
+                        student.benchNo === benchNum && student.roomNo === room.roomNumber
+                    );
+                    
+                    html += `<div class="bench-compact">
+                        <div class="bench-number">Bench ${benchNum}</div>`;
+                    
+                    // Add students to bench
+                    benchStudents.forEach(student => {
+                        html += `
+                        <div class="student-compact">${student.name.split(' ')[0]}</div>
+                        <div class="student-roll-compact">${student.rollNo}</div>`;
+                    });
+
+                    // Fill empty seats
+                    const emptySeats = currentCapacity - benchStudents.length;
+                    for (let i = 0; i < emptySeats; i++) {
+                        html += `<div class="student-compact" style="color: #94a3b8;">Empty</div>`;
+                    }
+                    
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+        });
+
+        roomLayout.innerHTML = html;
+    }
+
+    function exportToCSV() {
+        if (seatingArrangement.length === 0) {
+            alert('⚠️ Please generate seating arrangement first!');
+            return;
+        }
+
+        // Create CSV content with proper escaping
+        const headers = ['Roll No', 'Name', 'Course', 'Subject', 'Room No', 'Bench No', 'Seat No'];
+        const csvContent = [
+            headers.join(','),
+            ...seatingArrangement.map(student => 
+                [student.rollNo, student.name, student.course, student.subject, student.roomNo, student.benchNo, student.seatNo]
+                    .map(field => `"${String(field || '').replace(/"/g, '""')}"`)
+                    .join(',')
+            )
+        ].join('\n');
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `seating_arrangement_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showUploadStatus('CSV file downloaded successfully!', 'success');
+    }
+
+    function exportToPDF() {
+        if (seatingArrangement.length === 0) {
+            alert('⚠️ Please generate seating arrangement first!');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add title
+        doc.setFontSize(20);
+        doc.text('ExamFlow Pro - Seating Arrangement', 105, 15, { align: 'center' });
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 22, { align: 'center' });
+
+        let yPosition = 35;
+
+        // Add summary table
+        const rooms = getRoomConfiguration();
+        const totalStudents = studentsData.length;
+        const totalSeats = rooms.reduce((sum, room) => sum + (room.benches * currentCapacity), 0);
+        const capacityUsed = Math.round((totalStudents / totalSeats) * 100);
+
+        doc.setFontSize(12);
+        doc.text('Summary', 14, yPosition);
+        yPosition += 8;
+
+        const summaryData = [
+            ['Total Students', totalStudents],
+            ['Total Seats', totalSeats],
+            ['Total Rooms', rooms.length],
+            ['Capacity Used', `${capacityUsed}%`],
+            ['Seating Type', currentCapacity === 1 ? 'Single' : 'Dual']
+        ];
+
+        doc.autoTable({
+            startY: yPosition,
+            head: [['Metric', 'Value']],
+            body: summaryData,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [37, 99, 235] }
+        });
+
+        yPosition = doc.lastAutoTable.finalY + 15;
+
+        // Add seating arrangement table (limited to first 500 rows for performance)
+        doc.setFontSize(12);
+        doc.text('Seating Arrangement (First 500 entries)', 14, yPosition);
+        yPosition += 8;
+
+        const tableData = seatingArrangement.slice(0, 500).map(student => [
+            student.rollNo,
+            student.name,
+            student.course,
+            student.subject,
+            student.roomNo,
+            student.benchNo,
+            student.seatNo
+        ]);
+
+        doc.autoTable({
+            startY: yPosition,
+            head: [['Roll No', 'Name', 'Course', 'Subject', 'Room', 'Bench', 'Seat']],
+            body: tableData,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [37, 99, 235] },
+            pageBreak: 'auto'
+        });
+
+        // Save the PDF
+        doc.save(`seating_arrangement_${new Date().toISOString().split('T')[0]}.pdf`);
+        showUploadStatus('PDF file downloaded successfully!', 'success');
+    }
+</script>
+</body>
+</html>
